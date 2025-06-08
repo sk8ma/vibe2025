@@ -21,8 +21,8 @@
         #todoList th {
             background-color: #f0f0f0;
         }
-        #todoList th:first-child, #todoList th:last-child {
-            width: 5%;
+        #todoList th:first-child {
+            width: 10%;
         }
         #todoList th:nth-child(2) {
             width: 90%;
@@ -51,7 +51,6 @@
         <tr>
             <th>Number</th>
             <th>Text</th>
-            <th>Action</th>
         </tr>
     </thead>
     <tbody id="listBody">
@@ -65,38 +64,30 @@
 </div>
 
 <script>
-    let items = [];
-    let nextId = 1;
-
-    function renderList() {
-        const listBody = document.getElementById('listBody');
-        listBody.innerHTML = '';
-
-        items.forEach((item, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${item.text}</td>
-                <td><button onclick="removeItem(${index})">Remove</button></td>
-            `;
-            listBody.appendChild(row);
-        });
-    }
-
-    function addItem() {
+    async function addItem() {
         const newItemInput = document.getElementById('newItem');
         const newItemText = newItemInput.value.trim();
 
         if (newItemText) {
-            items.push({ id: nextId++, text: newItemText });
-            newItemInput.value = '';
-            renderList();
+            try {
+                const response = await fetch('/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: newItemText })
+                });
+                
+                if (response.ok) {
+                    // Reload the page to show the updated list
+                    window.location.reload();
+                } else {
+                    console.error('Failed to add item');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
-    }
-
-    function removeItem(index) {
-        items.splice(index, 1);
-        renderList();
     }
 </script>
 
